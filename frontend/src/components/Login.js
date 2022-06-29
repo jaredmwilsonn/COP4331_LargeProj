@@ -5,7 +5,21 @@ function Login()
     var email;
     var loginPassword;
 
+    
     const [message,setMessage] = useState('');
+
+    const app_name = 'pantry-cop4331'
+    function buildPath(route)
+    {
+        if (process.env.NODE_ENV === 'production') 
+        {
+            return 'https://' + app_name +  '.herokuapp.com/' + route;
+        }
+        else
+        {        
+            return 'http://localhost:5000/' + route;
+        }
+    }
 
     const doLogin = async event => 
     {
@@ -16,21 +30,20 @@ function Login()
 
         try
         {    
-            const response = await fetch('http://localhost:5000/api/login',
+            const response = await fetch(buildPath('api/login'),
                 {method:'POST',body:js,headers:{'Content-Type': 'application/json'}});
 
             let res = JSON.parse(await response.text());
-
             if( res._id <= 0 )
             {
                 setMessage('User/Password combination incorrect');
             }
             else
             {
-                let user = {email:res.firstName,lastName:res.lastName,user_id:res.id}  //original
+                let user = {email:res.email,firstName:res.firstName,lastName:res.lastName,user_id:res.id}
                 localStorage.setItem('user_data', JSON.stringify(user));
 
-                setMessage('');
+                setMessage('combo correct');
                 window.location.href = '/item';
             }
         }

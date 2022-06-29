@@ -3,12 +3,20 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 
 const MongoClient = require('mongodb').MongoClient;
-const url = 'mongodb+srv://JaredWilson:LargeProject@poosd.qp9miwb.mongodb.net/?retryWrites=true&w=majority';
-
+require('dotenv').config();
+const url = process.env.MONGODB_URI;
+// const MongoClient = require('mongodb').MongoClient;
 const client = new MongoClient(url);
 client.connect();
 
+
+const path = require('path');           
+const PORT = process.env.PORT || 5000;  
+
 const app = express();
+
+app.set('port', (process.env.PORT || 5000)); 
+
 app.use(cors());
 app.use(bodyParser.json());
 
@@ -117,6 +125,7 @@ let itemList =
 
 
 
+
 app.post('/api/login', async (req, res, next) => 
 {
   // incoming: email, password
@@ -129,19 +138,20 @@ app.post('/api/login', async (req, res, next) =>
   const db = client.db("LargeProject");
   const results = await db.collection('User').find({email:email,password:password}).toArray();
 
-  let id = -1;
+  let user_id = -1;
   let fn = '';
   let ln = '';
 
+  window.alert(fn);
   if( results.length > 0 )
   {
     //fields need to be added to mongodb
-    id = results[0].user_id;
+    user_id = results[0].user_id;
     fn = results[0].firstName;
     ln = results[0].lastName;
   }
 
-  let ret = { id:id, firstName:fn, lastName:ln, error:''};
+  let ret = { user_id:user_id, firstName:fn, lastName:ln, error:''};
   res.status(200).json(ret);
 });
 
@@ -212,4 +222,23 @@ app.use((req, res, next) =>
   next();
 });
 
-app.listen(5000); // start Node + Express server on port 5000
+// 
+app.listen(PORT, () => 
+{
+  console.log('Server listening on port ' + PORT);
+});
+
+///////////////////////////////////////////////////
+// For Heroku deployment
+
+// Server static assets if in production
+if (process.env.NODE_ENV === 'production') 
+{
+  // Set static folder
+  app.use(express.static('frontend/build'));
+
+  app.get('*', (req, res) => 
+ {
+    res.sendFile(path.resolve(__dirname, 'frontend', 'build', 'index.html'));
+  });
+}

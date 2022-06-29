@@ -5,7 +5,7 @@ function LoggedInName()
 	
     let _ud = localStorage.getItem('user_data');
     let ud = JSON.parse(_ud);
-    let _id = ud._id;
+    let user_id = ud.user_id;
     let firstName = ud.firstName;
     let lastName = ud.lastName;
 

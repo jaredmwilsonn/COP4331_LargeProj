@@ -9,9 +9,23 @@ function ItemUI()
     const [searchResults,setResults] = useState('');
     const [itemList,setItemList] = useState('');
 
+    
+    const app_name = 'pantry-cop4331'
+    function buildPath(route)
+    {
+        if (process.env.NODE_ENV === 'production') 
+        {
+            return 'https://' + app_name +  '.herokuapp.com/' + route;
+        }
+        else
+        {        
+            return 'http://localhost:5000/' + route;
+        }
+    }
+
     let _ud = localStorage.getItem('user_data');
     let ud = JSON.parse(_ud);
-    let user_id = ud.id;
+    let user_id = ud.user_id;
     let firstName = ud.firstName;
     let lastName = ud.lastName;
 
@@ -24,7 +38,7 @@ function ItemUI()
 
         try
         {
-            const response = await fetch('http://localhost:5000/api/additem',
+            const response = await fetch(buildPath('api/additem'),
             {method:'POST',body:js,headers:{'Content-Type': 'application/json'}});
 
             let txt = await response.text();
@@ -55,7 +69,7 @@ function ItemUI()
 
         try
         {
-            const response = await fetch('http://localhost:5000/api/searchitems',
+            const response = await fetch(buildPath('api/searchitems'),
             {method:'POST',body:js,headers:{'Content-Type': 'application/json'}});
 
             let txt = await response.text();
